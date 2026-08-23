@@ -5,4 +5,5 @@ out/
 Thumbs.db
 public/jd/
 src/data/jd-demo.json
-
+public/generated/
+.tmp/

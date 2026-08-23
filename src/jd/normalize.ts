@@ -1,4 +1,4 @@
-import type {AuctionProperty} from '../data/types';
+import type {AuctionItem} from '../data/types';
 import {formatAuctionPrice} from '../utils/price';
 
 export const normalizeJdImageUrl = (input: unknown): string | null => {
@@ -34,11 +34,13 @@ export const findProductArrays = (root: unknown): UnknownRecord[][] => {
 const score = (items: UnknownRecord[]): number => items.length * 5 + items.slice(0, 10).reduce((sum, item) => sum + productKeys.filter((key) => item[key] != null).length, 0);
 const text = (value: unknown): string | undefined => typeof value === 'string' && value.trim() ? value.trim() : typeof value === 'number' ? String(value) : undefined;
 
-export const normalizeJdItem = (item: UnknownRecord): (AuctionProperty & {remoteImage: string}) | null => {
+export type NormalizedJdItem = AuctionItem & {remoteImage: string; rawPriceFields: PriceInput};
+type PriceInput = {currentPriceCN?: unknown; currentPriceStr?: unknown; currentPrice?: unknown};
+
+export const normalizeJdItem = (item: UnknownRecord): NormalizedJdItem | null => {
   const id = text(item.productId) ?? text(item.skuId) ?? text(item.id);
   const rawTitle = text(item.title) ?? text(item.productName);
   const remoteImage = normalizeJdImageUrl(item.productImage);
   if (!id || !rawTitle || !remoteImage) return null;
-  return {id, title: cleanAuctionTitle(rawTitle) || rawTitle, image: `jd/${id}/cover.jpg`, remoteImage, price: formatAuctionPrice(item), province: text(item.province), city: text(item.city), address: text(item.productAddress), endTime: text(item.endTime), source: 'JD'};
+  return {id, title: cleanAuctionTitle(rawTitle) || rawTitle, image: `jd/${id}/cover.jpg`, remoteImage, price: formatAuctionPrice(item), province: text(item.province), city: text(item.city), district: text(item.district), address: text(item.productAddress), category: text(item.category), startTime: text(item.startTime), endTime: text(item.endTime), source: 'JD', rawPriceFields: {currentPriceCN:item.currentPriceCN,currentPriceStr:item.currentPriceStr,currentPrice:item.currentPrice}};
 };
-

@@ -7,11 +7,18 @@
     "typecheck": "tsc --noEmit",
     "render": "remotion render src/remotion/index.ts AuctionDaily out/demo.mp4 --codec=h264",
     "fetch:jd": "tsx scripts/prepareJdDemo.ts",
-    "render:jd": "tsx scripts/renderJd.ts"
+    "render:jd": "tsx scripts/renderJd.ts",
+    "voice:demo": "tsx scripts/prepareVoice.ts demo",
+    "voice:jd": "tsx scripts/prepareVoice.ts jd",
+    "render:voice": "npm run voice:demo && tsx scripts/renderVoice.ts demo",
+    "render:jd:voice": "npm run voice:jd && tsx scripts/renderVoice.ts jd",
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
+    "@andresaya/edge-tts": "^1.8.0",
     "@remotion/cli": "^4.0.0",
     "@remotion/media": "^4.0.0",
+    "mediabunny": "^1.55.1",
     "playwright": "^1.55.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

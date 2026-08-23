@@ -1,12 +1,12 @@
 import {access,mkdir,readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
-import type {AuctionProperty} from '../src/data/types';
+import type {AuctionItem} from '../src/data/types';
 const main=async()=>{const dataFile=path.resolve('src','data','jd-demo.json');
   try{await access(dataFile);}catch{throw new Error('请先执行 npm run fetch:jd');}
   const parsed: unknown=JSON.parse(await readFile(dataFile,'utf8'));
   if(!Array.isArray(parsed)||!parsed.length) throw new Error('请先执行 npm run fetch:jd');
-  const products=parsed as AuctionProperty[]; await Promise.all(products.map((item)=>access(path.resolve('public',item.image)))); await mkdir('out',{recursive:true});
+  const products=parsed as AuctionItem[]; await Promise.all(products.map((item)=>access(path.resolve('public',item.image)))); await mkdir('out',{recursive:true});
   console.log('渲染开始');
   const bin=path.resolve('node_modules','.bin',process.platform==='win32'?'remotion.cmd':'remotion');
   const propsFile=path.resolve('out','jd-props.json');
