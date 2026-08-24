@@ -11,8 +11,17 @@
 npm install
 npm run typecheck
 npm run dev
-npm run render
 ```
+
+打开 `http://localhost:3000`，即可在工作台中拉取京东拍卖数据、选择标的与模板、生成并下载 MP4。
+
+如需单独打开 Remotion Studio：
+
+```bash
+npx remotion studio src/remotion/index.ts
+```
+
+离线演示视频仍可通过 `npm run render` 生成。
 
 离线演示输出为 `out/demo.mp4`，不访问网络。`src/data/demo.ts` 中的数据均标记为 DEMO。
 

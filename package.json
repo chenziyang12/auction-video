@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "remotion studio src/remotion/index.ts",
+    "dev": "tsx src/web/server.ts",
+    "build": "npm run render",
     "typecheck": "tsc --noEmit",
     "render": "remotion render src/remotion/index.ts AuctionDaily out/demo.mp4 --codec=h264",
     "fetch:jd": "tsx scripts/prepareJdDemo.ts",
@@ -18,6 +19,7 @@
     "@andresaya/edge-tts": "^1.8.0",
     "@remotion/cli": "^4.0.0",
     "@remotion/media": "^4.0.0",
+    "express": "^5.2.1",
     "mediabunny": "^1.55.1",
     "playwright": "^1.55.0",
     "react": "^19.0.0",
@@ -25,10 +27,12 @@
     "remotion": "^4.0.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vite": "^7.1.7"
   }
 }
