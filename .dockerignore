@@ -1,0 +1,16 @@
+.git
+.gitignore
+node_modules
+out
+output
+storage
+.tmp
+public/generated
+public/jd
+*.mp4
+*.log
+npm-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+auction-video.zip

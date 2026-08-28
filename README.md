@@ -61,3 +61,67 @@ TTS_PITCH=+0Hz
 ```
 
 无语音的 `npm run render` 仍可完全离线运行。
+
+## 绿联 DXP4800 Plus Docker 部署
+
+当前 Docker 方案面向 Intel x86_64 的绿联 DXP4800 Plus，使用 CPU 渲染 H.264，不包含 QSV、VAAPI、CUDA 或 NVIDIA 加速。
+
+### 首次部署
+
+1. 在 NAS 上创建应用目录，并进入该目录。
+2. 克隆仓库并进入项目：
+
+```bash
+git clone https://github.com/chenziyang12/auction-video.git
+cd auction-video
+mkdir -p storage output
+```
+
+3. 构建并启动：
+
+```bash
+docker compose build
+docker compose up -d
+docker compose ps
+docker compose logs -f
+```
+
+4. 浏览器访问：
+
+```text
+http://NAS_IP:3000
+```
+
+容器内 Web 服务监听 `0.0.0.0:3000`。镜像使用 Debian Bookworm 的系统 Chromium，供 Playwright 抓取和 Remotion 渲染共同使用，并安装 `fonts-noto-cjk` 保证中文显示。
+
+### 持久化目录
+
+Compose 只挂载两个宿主机目录：
+
+- `./storage:/app/storage`
+  - `storage/jd-items.json`：最近一次京东抓取数据
+  - `storage/jd/`：京东下载图片
+  - `storage/generated/tts/`：TTS 音频与元数据缓存
+  - `storage/tmp/`：timeline、props 和渲染清单等运行数据
+- `./output:/app/output`
+  - Web 工作台和命令行生成的 MP4
+
+容器首次启动会自动创建所需子目录，不需要执行 `chmod 777`。如 NAS 提示挂载目录无写入权限，请在绿联文件管理或容器管理界面给 Docker 服务账号授予 `storage`、`output` 的读写权限。
+
+### 更新与停止
+
+更新代码并重建：
+
+```bash
+git pull
+docker compose build
+docker compose up -d
+```
+
+停止服务：
+
+```bash
+docker compose down
+```
+
+当前工作台没有登录鉴权，不建议把 3000 端口直接暴露到公网。当前版本也没有 GPU/QSV 加速，性能以 NAS 上的 CPU 实测为准。

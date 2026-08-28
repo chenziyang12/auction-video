@@ -1,14 +1,12 @@
-import {mkdir, readFile, writeFile} from 'node:fs/promises';
-import path from 'node:path';
+import {readFile, writeFile} from 'node:fs/promises';
+import {ensureRuntimeDirectories, runtimePaths} from '../config/runtimePaths';
 import type {AuctionItem} from '../data/types';
 import {downloadJdImage} from './downloadAssets';
 import {fetchAuctionList} from './fetchAuctionList';
 
-const dataFile = path.resolve('src', 'data', 'jd-demo.json');
-
 export const readStoredAuctionItems = async (): Promise<AuctionItem[]> => {
   try {
-    const value: unknown = JSON.parse(await readFile(dataFile, 'utf8'));
+    const value: unknown = JSON.parse(await readFile(runtimePaths.jdDataFile, 'utf8'));
     return Array.isArray(value) ? value as AuctionItem[] : [];
   } catch {
     return [];
@@ -17,6 +15,7 @@ export const readStoredAuctionItems = async (): Promise<AuctionItem[]> => {
 
 // 抓取列表后把图片和数据落到现有本地目录，供页面预览和 Remotion 共用。
 export const fetchAndStoreAuctionItems = async (limit = 10): Promise<AuctionItem[]> => {
+  await ensureRuntimeDirectories();
   const products = await fetchAuctionList(limit);
   const downloaded: AuctionItem[] = [];
 
@@ -31,7 +30,6 @@ export const fetchAndStoreAuctionItems = async (limit = 10): Promise<AuctionItem
   }
 
   if (!downloaded.length) throw new Error('全部图片下载失败，无法生成视频。');
-  await mkdir(path.dirname(dataFile), {recursive: true});
-  await writeFile(dataFile, JSON.stringify(downloaded, null, 2));
+  await writeFile(runtimePaths.jdDataFile, JSON.stringify(downloaded, null, 2));
   return downloaded;
 };

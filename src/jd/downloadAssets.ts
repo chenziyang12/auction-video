@@ -1,8 +1,9 @@
 import {mkdir, writeFile} from 'node:fs/promises';
 import path from 'node:path';
+import {runtimePaths} from '../config/runtimePaths';
 
 export const downloadJdImage = async (url: string, productId: string): Promise<string> => {
-  const targetDir = path.resolve('public', 'jd', productId);
+  const targetDir = path.join(runtimePaths.jdImageDir, productId);
   const target = path.join(targetDir, 'cover.jpg');
   await mkdir(targetDir, {recursive: true});
   const controller = new AbortController();

@@ -1,0 +1,27 @@
+services:
+  auction-video:
+    build:
+      context: .
+    container_name: auction-video
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      TZ: Asia/Shanghai
+      DOCKER: "true"
+      STORAGE_DIR: /app/storage
+      OUTPUT_DIR: /app/output
+      BROWSER_EXECUTABLE: /usr/bin/chromium
+      PLAYWRIGHT_CHROMIUM_EXECUTABLE: /usr/bin/chromium
+      REMOTION_BROWSER_EXECUTABLE: /usr/bin/chromium
+    volumes:
+      - ./storage:/app/storage
+      - ./output:/app/output
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then((response) => response.json()).then((body) => { if (body.ok !== true) process.exit(1); }).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

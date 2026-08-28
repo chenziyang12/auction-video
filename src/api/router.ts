@@ -31,6 +31,10 @@ const isAuctionItem = (value: unknown): value is AuctionItem => {
 
 const templateIds = new Set<string>(VIDEO_TEMPLATES.map((template) => template.id));
 
+router.get('/health', (_request, response) => {
+  response.json({ok: true});
+});
+
 router.get('/items', async (_request, response) => {
   response.json(await readStoredAuctionItems());
 });

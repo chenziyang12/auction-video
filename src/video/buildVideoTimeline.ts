@@ -10,9 +10,10 @@ import type {TtsResult} from '../tts/types';
 import {calculateSceneFrames} from '../timeline/duration';
 import type {VideoSegment, VideoTimeline} from '../timeline/types';
 import {getRegionTitle} from '../utils/region';
+import {runtimePaths} from '../config/runtimePaths';
 
 const fps = 30;
-const cacheDir = path.resolve('public', 'generated', 'tts');
+const cacheDir = path.join(runtimePaths.generatedDir, 'tts');
 const provider = new EdgeTtsProvider();
 
 // TTS 缓存键包含声音配置和文案，重复生成相同标的时直接复用音频。
@@ -55,7 +56,7 @@ export const buildVideoTimeline = async (items: AuctionItem[]): Promise<VideoTim
 
   for (const definition of definitions) {
     const result = await synthesizeCached(definition.text);
-    const audioSrc = path.relative(path.resolve('public'), result.audioPath).replaceAll('\\', '/');
+    const audioSrc = path.posix.join('generated', 'tts', path.basename(result.audioPath));
     segments.push({
       id: definition.id,
       type: definition.type,

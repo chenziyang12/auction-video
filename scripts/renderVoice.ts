@@ -1,2 +1,30 @@
-import {access,mkdir} from 'node:fs/promises';import path from 'node:path';import {spawn} from 'node:child_process';
-const main=async()=>{const mode=process.argv[2];if(mode!=='demo'&&mode!=='jd')throw new Error('Usage: renderVoice.ts demo|jd');const props=path.resolve('.tmp','narration',`${mode}.json`);try{await access(props);}catch{throw new Error(`请先执行 npm run voice:${mode}`);}await mkdir('out',{recursive:true});const output=mode==='demo'?'out/demo-voice.mp4':'out/jd-voice.mp4';const bin=path.resolve('node_modules','.bin',process.platform==='win32'?'remotion.cmd':'remotion');const child=spawn(bin,['render','src/remotion/index.ts','AuctionDailyVoice',output,'--codec=h264',`--props=${props}`],{stdio:'inherit',shell:process.platform==='win32'});const code=await new Promise<number|null>((resolve,reject)=>{child.on('exit',resolve);child.on('error',reject);});if(code!==0)throw new Error(`Remotion render 失败，退出码 ${code}`);};main().catch((error)=>{console.error(error);process.exitCode=1;});
+import {access} from 'node:fs/promises';
+import path from 'node:path';
+import {ensureRuntimeDirectories, runtimePaths} from '../src/config/runtimePaths';
+import {runRemotion} from '../src/video/remotionCli';
+
+const main = async () => {
+  const mode = process.argv[2];
+  if (mode !== 'demo' && mode !== 'jd') throw new Error('Usage: renderVoice.ts demo|jd');
+  await ensureRuntimeDirectories();
+  const propsFile = path.join(runtimePaths.tempDir, 'narration', `${mode}.json`);
+  try {
+    await access(propsFile);
+  } catch {
+    throw new Error(`请先执行 npm run voice:${mode}`);
+  }
+  const outputFile = mode === 'demo' ? 'demo-voice.mp4' : 'jd-voice.mp4';
+  await runRemotion([
+    'render',
+    'src/remotion/index.ts',
+    'AuctionDailyVoice',
+    path.join(runtimePaths.outputDir, outputFile),
+    '--codec=h264',
+    `--props=${propsFile}`,
+  ]);
+};
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

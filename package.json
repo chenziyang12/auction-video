@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "tsx src/web/server.ts",
+    "start": "tsx src/web/server.ts",
     "build": "npm run render",
     "typecheck": "tsc --noEmit",
-    "render": "remotion render src/remotion/index.ts AuctionDaily out/demo.mp4 --codec=h264",
+    "render": "tsx scripts/renderDemo.ts",
     "fetch:jd": "tsx scripts/prepareJdDemo.ts",
     "render:jd": "tsx scripts/renderJd.ts",
     "voice:demo": "tsx scripts/prepareVoice.ts demo",
