@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim
+FROM docker.m.daocloud.io/library/node:22-bookworm-slim
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
