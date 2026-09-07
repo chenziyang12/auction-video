@@ -14,7 +14,8 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --include=dev
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm ci --include=dev
 
 COPY . .
 
