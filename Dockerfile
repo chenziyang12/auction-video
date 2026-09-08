@@ -14,8 +14,9 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm config set registry https://registry.npmmirror.com \
-    && npm ci --include=dev
+RUN npm config set registry https://repo.huaweicloud.com/repository/npm/ \
+    && npm config set maxsockets 3 \
+    && npm ci --include=dev --no-audit --no-fund
 
 COPY . .
 
