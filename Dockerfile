@@ -18,7 +18,7 @@ COPY package.json yarn.lock ./
 RUN corepack enable \
     && yarn install --frozen-lockfile
 
-COPY ..
+COPY . .
 
 RUN mkdir -p /app/storage/jd /app/storage/generated /app/storage/tmp /app/output \
     && rm -rf /app/public/jd /app/public/generated \
