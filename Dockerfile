@@ -14,8 +14,10 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm config set registry https://repo.huaweicloud.com/repository/npm/ \
-    && npm config set maxsockets 3 \
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm config set fetch-retries 5 \
+    && npm config set fetch-timeout 600000 \
+    && npm config set maxsockets 2 \
     && npm ci --include=dev --no-audit --no-fund
 
 COPY . .
