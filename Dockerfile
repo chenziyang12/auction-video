@@ -15,9 +15,11 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm config set registry https://registry.npmmirror.com \
-    && npm config set fetch-retries 5 \
+    && npm config set proxy http://192.168.124.97:7890 \
+    && npm config set https-proxy http://192.168.124.97:7890 \
+    && npm config set fetch-retries 10 \
     && npm config set fetch-timeout 600000 \
-    && npm config set maxsockets 2 \
+    && npm config set maxsockets 1 \
     && npm ci --include=dev --no-audit --no-fund
 
 COPY . .
