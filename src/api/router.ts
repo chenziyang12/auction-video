@@ -4,6 +4,8 @@ import {fetchAndStoreAuctionItems, readStoredAuctionItems} from '../jd/auctionIt
 import {renderSelectedVideo, VIDEO_TEMPLATES} from '../video/renderSelectedVideo';
 import type {RenderStage, VideoTemplateId} from '../video/renderSelectedVideo';
 import type {VideoConfig} from '../types/video';
+import {isVideoConfig,readVideoSettings,saveVideoSettings} from '../settings/videoSettings';
+import {getSystemUpdateStatus,startSystemUpdate} from '../system/updateService';
 
 type RenderState = {
   // 当前任务状态，MVP 仅维护一个本机渲染任务。
@@ -57,6 +59,25 @@ router.get('/video/status', (_request, response) => {
   response.json(renderState);
 });
 
+router.get('/settings/video',async(_request,response)=>{
+  response.json(await readVideoSettings());
+});
+
+router.post('/settings/video',async(request,response)=>{
+  if(!isVideoConfig(request.body))return response.status(400).json({message:'视频配置格式无效。'});
+  try{return response.json(await saveVideoSettings(request.body));}
+  catch(error){return response.status(500).json({message:error instanceof Error?error.message:'保存视频配置失败。'});}
+});
+
+router.get('/system/update/status',async(_request,response)=>{
+  response.json(await getSystemUpdateStatus());
+});
+
+router.post('/system/update',async(_request,response)=>{
+  try{await startSystemUpdate();return response.json({success:true,message:'更新任务已启动'});}
+  catch(error){return response.status(409).json({success:false,message:error instanceof Error?error.message:'启动更新失败。'});}
+});
+
 router.post('/video/render', async (request, response) => {
   if (renderState.status === 'processing') {
     return response.status(409).json({message: '已有视频正在生成，请稍候。'});
@@ -64,13 +85,17 @@ router.post('/video/render', async (request, response) => {
 
   const items = request.body?.items;
   const templateId = request.body?.templateId;
-  const videoConfig = request.body?.videoConfig as VideoConfig | undefined;
+  const requestedVideoConfig:unknown = request.body?.videoConfig;
   if (!Array.isArray(items) || items.length === 0 || items.length > 10 || !items.every(isAuctionItem)) {
     return response.status(400).json({message: '请选择 1 到 10 条有效拍卖标的。'});
   }
   if (typeof templateId !== 'string' || !templateIds.has(templateId)) {
     return response.status(400).json({message: '请选择有效的视频模板。'});
   }
+  if(requestedVideoConfig!==undefined&&!isVideoConfig(requestedVideoConfig)){
+    return response.status(400).json({message:'视频配置格式无效。'});
+  }
+  const videoConfig:VideoConfig=requestedVideoConfig===undefined?await readVideoSettings():requestedVideoConfig;
 
   renderState = {status: 'processing', stage: '准备数据'};
   try {

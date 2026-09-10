@@ -2,6 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 import type {AuctionItem} from '../data/types';
 import {DEFAULT_VIDEO_CONFIG} from '../types/video';
 import type {ResolvedVideoConfig} from '../types/video';
+import {SystemSettingsPage} from './SystemSettingsPage';
 
 const templates = [
   {id: 'default', name: '今日拍卖精选', description: '适合每日批量播报的标准版式'},
@@ -36,6 +37,7 @@ export const App = () => {
   const [stage, setStage] = useState<Stage>();
   const [downloadUrl, setDownloadUrl] = useState('');
   const [message, setMessage] = useState('');
+  const [page,setPage]=useState<'workspace'|'settings'>('workspace');
   const [videoConfig, setVideoConfig] = useState<ResolvedVideoConfig>(() => ({
     ...DEFAULT_VIDEO_CONFIG,
     subtitle: {...DEFAULT_VIDEO_CONFIG.subtitle, position: {...DEFAULT_VIDEO_CONFIG.subtitle.position}, style: {...DEFAULT_VIDEO_CONFIG.subtitle.style}},
@@ -47,6 +49,7 @@ export const App = () => {
 
   useEffect(() => {
     request<AuctionItem[]>('/api/items').then(setItems).catch((error: Error) => setMessage(error.message));
+    request<ResolvedVideoConfig>('/api/settings/video').then(setVideoConfig).catch((error:Error)=>setMessage(error.message));
   }, []);
 
   const fetchItems = async () => {
@@ -103,6 +106,8 @@ export const App = () => {
     }
   };
 
+  if(page==='settings')return <main className="workspace"><header className="hero"><div><div className="eyebrow">AUCTION VIDEO STUDIO</div><h1>系统设置</h1><p>管理视频默认参数、联系方式、品牌图层和系统更新。</p></div><button className="nav-button" type="button" onClick={()=>setPage('workspace')}>返回工作台</button></header><SystemSettingsPage config={videoConfig} setConfig={setVideoConfig} request={request}/></main>;
+
   return (
     <main className="workspace">
       <header className="hero">
@@ -116,6 +121,7 @@ export const App = () => {
           <strong>{items.length}</strong>
           <small>条可用数据</small>
         </div>
+        <button className="nav-button" type="button" onClick={()=>setPage('settings')}>系统设置</button>
       </header>
 
       <div className="steps" aria-label="生成步骤">

@@ -22,6 +22,11 @@ export const runtimePaths = {
     ? path.join(path.resolve(configuredStorageDir), 'tmp')
     : path.join(projectRoot, '.tmp'),
   outputDir: path.resolve(process.env.OUTPUT_DIR?.trim() || 'out'),
+  videoSettingsFile: configuredStorageDir
+    ? path.join(path.resolve(configuredStorageDir), 'settings', 'video-config.json')
+    : path.join(projectRoot, 'data', 'settings', 'video-config.json'),
+  updateLogFile: path.join(projectRoot, 'update.log'),
+  updateRunningFile: path.join(projectRoot, '.update-running'),
 } as const;
 
 export const resolvePublicAssetPath = (relativePath: string): string => {
@@ -39,5 +44,6 @@ export const ensureRuntimeDirectories = async (): Promise<void> => {
     mkdir(path.join(runtimePaths.generatedDir, 'tts'), {recursive: true}),
     mkdir(runtimePaths.tempDir, {recursive: true}),
     mkdir(runtimePaths.outputDir, {recursive: true}),
+    mkdir(path.dirname(runtimePaths.videoSettingsFile), {recursive: true}),
   ]);
 };
