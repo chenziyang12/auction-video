@@ -7,7 +7,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(circle at 12% -8%, #dce9cd 0, transparent 28%), #f2f4ef; }
-button, input { font: inherit; }
+button, input, textarea { font: inherit; }
 button, label, a { -webkit-tap-highlight-color: transparent; }
 .workspace { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 44px 0 64px; }
 
@@ -65,6 +65,15 @@ button:disabled { cursor: not-allowed; opacity: .46; }
 .template-card.selected small, .template-card.selected .template-index { color: #c8d7ca; }
 .template-card i { margin-top: auto; padding-top: 18px; font-size: 11px; font-style: normal; font-weight: 800; }
 
+.config-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.config-group { display: flex; flex-direction: column; gap: 12px; padding: 20px; border: 1px solid #dce1d9; background: #fafbf8; }
+.config-group h3 { margin: 0 0 4px; font-size: 16px; }
+.config-group label { display: grid; gap: 6px; color: #697269; font-size: 12px; }
+.config-group input:not([type="checkbox"]):not([type="range"]), .config-group textarea { width: 100%; padding: 10px 11px; border: 1px solid #ccd3c9; border-radius: 2px; color: #172019; background: white; }
+.config-group textarea { min-height: 76px; resize: vertical; }
+.config-group .toggle { display: flex; grid-template-columns: none; align-items: center; gap: 8px; color: #33483a; font-weight: 700; }
+.inline-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
 .generate-panel { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 34px; color: white; border-radius: 3px; background: #171d19; }
 .section-number.light { color: #91a495; }
 .generate-panel p { margin: 8px 0 0; color: #9ca79e; font-size: 13px; }
@@ -85,7 +94,7 @@ button:disabled { cursor: not-allowed; opacity: .46; }
   .step:nth-child(2) { border-right: 0; }
   .step:nth-child(-n+2) { border-bottom: 1px solid #d4d9d1; }
   .fetch-panel, .generate-panel { align-items: stretch; flex-direction: column; }
-  .item-grid, .template-grid { grid-template-columns: 1fr; }
+  .item-grid, .template-grid, .config-grid { grid-template-columns: 1fr; }
   .primary-button, .generate-button, .download-button { width: 100%; }
 }
 

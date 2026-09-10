@@ -1,5 +1,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import type {AuctionItem} from '../data/types';
+import {DEFAULT_VIDEO_CONFIG} from '../types/video';
+import type {ResolvedVideoConfig} from '../types/video';
 
 const templates = [
   {id: 'default', name: '今日拍卖精选', description: '适合每日批量播报的标准版式'},
@@ -34,6 +36,13 @@ export const App = () => {
   const [stage, setStage] = useState<Stage>();
   const [downloadUrl, setDownloadUrl] = useState('');
   const [message, setMessage] = useState('');
+  const [videoConfig, setVideoConfig] = useState<ResolvedVideoConfig>(() => ({
+    ...DEFAULT_VIDEO_CONFIG,
+    subtitle: {...DEFAULT_VIDEO_CONFIG.subtitle, position: {...DEFAULT_VIDEO_CONFIG.subtitle.position}, style: {...DEFAULT_VIDEO_CONFIG.subtitle.style}},
+    contact: {...DEFAULT_VIDEO_CONFIG.contact},
+    logo: {...DEFAULT_VIDEO_CONFIG.logo},
+    textLayers: [],
+  }));
   const selectedItems = useMemo(() => items.filter((item) => selectedIds.includes(item.id)), [items, selectedIds]);
 
   useEffect(() => {
@@ -81,7 +90,7 @@ export const App = () => {
       const result = await request<{status: 'success'; file: string; url: string}>('/api/video/render', {
         method: 'POST',
         headers: {'content-type': 'application/json'},
-        body: JSON.stringify({items: selectedItems, templateId}),
+        body: JSON.stringify({items: selectedItems, templateId, videoConfig}),
       });
       setStage('完成');
       setDownloadUrl(result.url);
@@ -171,9 +180,40 @@ export const App = () => {
         </div>
       </section>
 
+      <section className="panel">
+        <div className="section-heading"><div><span className="section-number">04</span><h2>配置视频内容</h2></div></div>
+        <div className="config-grid">
+          <div className="config-group">
+            <h3>字幕</h3>
+            <label className="toggle"><input type="checkbox" checked={videoConfig.subtitle.enabled} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,enabled:event.target.checked}}))}/> 显示字幕</label>
+            <label>固定字幕文字（留空使用语音字幕）<textarea value={videoConfig.subtitle.text} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,text:event.target.value}}))}/></label>
+            <div className="inline-fields"><label>X 坐标<input type="number" value={videoConfig.subtitle.position.x} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,position:{...current.subtitle.position,x:Number(event.target.value)}}}))}/></label><label>Y 坐标<input type="number" value={videoConfig.subtitle.position.y} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,position:{...current.subtitle.position,y:Number(event.target.value)}}}))}/></label></div>
+            <div className="inline-fields"><label>字号<input type="number" min="12" max="120" value={videoConfig.subtitle.style.fontSize} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,style:{...current.subtitle.style,fontSize:Number(event.target.value)}}}))}/></label><label>颜色<input type="color" value={videoConfig.subtitle.style.color} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,style:{...current.subtitle.style,color:event.target.value}}}))}/></label><label>粗细<input type="number" min="100" max="900" step="50" value={videoConfig.subtitle.style.fontWeight} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,style:{...current.subtitle.style,fontWeight:Number(event.target.value)}}}))}/></label></div>
+            <label>背景色<input value={videoConfig.subtitle.style.background??''} onChange={(event)=>setVideoConfig((current)=>({...current,subtitle:{...current.subtitle,style:{...current.subtitle.style,background:event.target.value}}}))}/></label>
+          </div>
+          <div className="config-group">
+            <h3>宣传文字</h3>
+            <label>多行内容<textarea placeholder={'核心区域优质资产\n欢迎咨询'} value={videoConfig.textLayers[0]?.text??''} onChange={(event)=>setVideoConfig((current)=>({...current,textLayers:event.target.value?[{id:'promotion',text:event.target.value,position:current.textLayers[0]?.position??{x:540,y:340},style:current.textLayers[0]?.style??{fontSize:46,color:'#ffffff',fontWeight:700}}]:[]}))}/></label>
+          </div>
+          <div className="config-group">
+            <h3>尾页联系方式</h3>
+            <label className="toggle"><input type="checkbox" checked={videoConfig.contact.enabled} onChange={(event)=>setVideoConfig((current)=>({...current,contact:{...current.contact,enabled:event.target.checked}}))}/> 在尾页显示</label>
+            <label>联系人<input value={videoConfig.contact.name??''} onChange={(event)=>setVideoConfig((current)=>({...current,contact:{...current.contact,name:event.target.value}}))}/></label>
+            <label>微信<input value={videoConfig.contact.wechat??''} onChange={(event)=>setVideoConfig((current)=>({...current,contact:{...current.contact,wechat:event.target.value}}))}/></label>
+            <label>电话<input value={videoConfig.contact.phone??''} onChange={(event)=>setVideoConfig((current)=>({...current,contact:{...current.contact,phone:event.target.value}}))}/></label>
+          </div>
+          <div className="config-group">
+            <h3>Logo</h3>
+            <label className="toggle"><input type="checkbox" checked={videoConfig.logo.enabled} onChange={(event)=>setVideoConfig((current)=>({...current,logo:{...current.logo,enabled:event.target.checked}}))}/> 显示 Logo</label>
+            <label>public 内资源路径<input placeholder="brand/logo.png" value={videoConfig.logo.url} onChange={(event)=>setVideoConfig((current)=>({...current,logo:{...current.logo,url:event.target.value}}))}/></label>
+            <label>透明度<input type="range" min="0" max="1" step="0.05" value={videoConfig.logo.opacity} onChange={(event)=>setVideoConfig((current)=>({...current,logo:{...current.logo,opacity:Number(event.target.value)}}))}/></label>
+          </div>
+        </div>
+      </section>
+
       <section className="generate-panel">
         <div>
-          <span className="section-number light">04</span>
+          <span className="section-number light">05</span>
           <h2>{downloadUrl ? '视频生成完成' : rendering ? stage : '准备生成视频'}</h2>
           <p>{downloadUrl ? 'MP4 已保存在本地，可以直接下载查看。' : `已选 ${selectedItems.length} 条标的 · ${templates.find((item) => item.id === templateId)?.name}`}</p>
           {rendering && <div className="progress-track"><span className={`progress progress-${stage}`}></span></div>}

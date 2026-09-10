@@ -3,6 +3,7 @@ import type {AuctionItem} from '../data/types';
 import {fetchAndStoreAuctionItems, readStoredAuctionItems} from '../jd/auctionItemStore';
 import {renderSelectedVideo, VIDEO_TEMPLATES} from '../video/renderSelectedVideo';
 import type {RenderStage, VideoTemplateId} from '../video/renderSelectedVideo';
+import type {VideoConfig} from '../types/video';
 
 type RenderState = {
   // 当前任务状态，MVP 仅维护一个本机渲染任务。
@@ -63,6 +64,7 @@ router.post('/video/render', async (request, response) => {
 
   const items = request.body?.items;
   const templateId = request.body?.templateId;
+  const videoConfig = request.body?.videoConfig as VideoConfig | undefined;
   if (!Array.isArray(items) || items.length === 0 || items.length > 10 || !items.every(isAuctionItem)) {
     return response.status(400).json({message: '请选择 1 到 10 条有效拍卖标的。'});
   }
@@ -75,6 +77,7 @@ router.post('/video/render', async (request, response) => {
     const file = await renderSelectedVideo({
       items,
       templateId: templateId as VideoTemplateId,
+      videoConfig,
       onStage: (stage) => { renderState = {status: stage === '完成' ? 'success' : 'processing', stage}; },
     });
     renderState = {status: 'success', stage: '完成', file};

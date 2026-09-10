@@ -5,6 +5,7 @@ import {ensureRuntimeDirectories, runtimePaths} from '../config/runtimePaths';
 import type {AuctionItem} from '../data/types';
 import {buildVideoTimeline} from './buildVideoTimeline';
 import {runRemotion} from './remotionCli';
+import type {VideoConfig} from '../types/video';
 
 export const VIDEO_TEMPLATES = [
   {id: 'default', name: '今日拍卖精选'},
@@ -19,10 +20,12 @@ export type RenderStage = '准备数据' | '生成语音' | '渲染视频' | '�
 export const renderSelectedVideo = async ({
   items,
   templateId,
+  videoConfig,
   onStage,
 }: {
   items: AuctionItem[];
   templateId: VideoTemplateId;
+  videoConfig?: VideoConfig;
   onStage: (stage: RenderStage) => void;
 }): Promise<string> => {
   onStage('准备数据');
@@ -34,7 +37,7 @@ export const renderSelectedVideo = async ({
   await ensureRuntimeDirectories();
   const timeline = await buildVideoTimeline(items);
   await mkdir(path.dirname(propsFile), {recursive: true});
-  await writeFile(propsFile, JSON.stringify({timeline, templateId}, null, 2));
+  await writeFile(propsFile, JSON.stringify({timeline, templateId, videoConfig}, null, 2));
 
   onStage('渲染视频');
   const args = [
