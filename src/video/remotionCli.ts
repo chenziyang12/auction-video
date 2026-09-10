@@ -1,29 +1,6 @@
 import {spawn} from 'node:child_process';
-import {access} from 'node:fs/promises';
 import path from 'node:path';
-
-const findBrowserExecutable = async (): Promise<string | undefined> => {
-  const candidates = [
-    process.env.REMOTION_BROWSER_EXECUTABLE,
-    process.env.BROWSER_EXECUTABLE,
-    process.platform === 'win32' && process.env.PROGRAMFILES
-      ? path.join(process.env.PROGRAMFILES, 'Google', 'Chrome', 'Application', 'chrome.exe')
-      : undefined,
-    process.platform === 'win32' && process.env['PROGRAMFILES(X86)']
-      ? path.join(process.env['PROGRAMFILES(X86)'], 'Microsoft', 'Edge', 'Application', 'msedge.exe')
-      : undefined,
-  ].filter((candidate): candidate is string => Boolean(candidate));
-
-  for (const candidate of candidates) {
-    try {
-      await access(candidate);
-      return candidate;
-    } catch {
-      // 当前候选不存在时继续检查下一个。
-    }
-  }
-  return undefined;
-};
+import {findBrowserExecutable} from '../utils/browserExecutable';
 
 // 直接通过 Node 启动 CLI，兼容 Windows 空格路径和 Linux 容器路径。
 export const runRemotion = async (args: string[]): Promise<void> => {

@@ -1,16 +1,17 @@
 import {chromium} from 'playwright';
 import {findProductArrays, normalizeJdItem} from './normalize';
+import {findBrowserExecutable} from '../utils/browserExecutable';
 
 export const JD_LIST_URL = 'https://pmsearch.jd.com/?publishSource=9&productLocation=19';
 const verification = /验证码|安全验证|滑动验证|完成拼图|访问过于频繁/;
 
 export const fetchAuctionList = async (limit = 3) => {
-  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || process.env.BROWSER_EXECUTABLE;
+  const executablePath = await findBrowserExecutable();
   const isDockerLinux = process.platform === 'linux' && process.env.DOCKER === 'true';
   // Docker 使用系统 Chromium 并关闭沙箱；本地开发继续使用 Playwright 默认配置。
   const browser = await chromium.launch({
     headless: true,
-    executablePath: executablePath || undefined,
+    executablePath,
     args: isDockerLinux ? ['--no-sandbox', '--disable-dev-shm-usage'] : [],
   });
   try {
